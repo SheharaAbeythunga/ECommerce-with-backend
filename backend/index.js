@@ -146,6 +146,59 @@ app.get('/allproducts',async (req,res)=>{
     res.send(products);
 })
 
+//Schema creating for User model
+const Users=mongoose.model('Users',{
+    name:{
+        type:String
+    },
+    email:{
+        type:String,
+        unique:true,
+    },
+    password:{
+        type:String,
+    },
+    cartData:{
+        type:Object,
+    },
+    date:{
+        type:Date,
+        default:Date.now,
+    }
+})
+
+//Creating End points for registering users
+app.post('/signup',async (req,res)=>{
+    let check=await Users.findOne({email:req.body.email});
+
+    if(check){
+        return res.status(400).json({success:false,errors:"Existing user found with same email address"})
+    }
+    //if there is no error
+    let cart={};
+    for(let i=0; i<300; i++){
+        cart[i]=0;
+    }
+    const user=new Users({
+        name:req.body.username,
+        email:req.body.email,
+        password:req.body.password,
+        cartData:cart,
+    })
+    await user.save();
+
+    //jwt authentication
+
+    const data={
+        user:{
+            id:user.id
+        }
+    }
+//data encripting by one layer.our token is not readable
+    const token=jwt.sign(data,'secret_ecom');
+    res.json({success:true,token})
+})
+
 app.listen(port,(error)=>{
     if( !error){
         console.log("Server running on port "+port);
