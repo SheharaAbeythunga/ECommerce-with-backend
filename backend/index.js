@@ -222,6 +222,15 @@ app.post('/login',async(req,res)=>{
          res.json({success:false,errors:"Wrong Email Id"})   
     }
 })
+
+//creating endpoints for newcollection data
+app.get('/newcollections',async (req,res)=>{
+    let products=await Product.find({});
+    let newcollection = products.slice(1).slice(-8);
+    console.log("New Collection fetched.");
+    res.send(newcollection);
+})
+ 
 app.listen(port,(error)=>{
     if( !error){
         console.log("Server running on port "+port);
